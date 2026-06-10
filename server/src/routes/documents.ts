@@ -4,6 +4,7 @@ import prisma from '../utils/db';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { v2 as cloudinary } from 'cloudinary';
 
 const router = Router();
 
@@ -25,6 +26,21 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
+
+// Cloudinary configuration (optional, active if keys exist)
+const isCloudinaryActive = !!(
+  process.env.CLOUDINARY_CLOUD_NAME &&
+  process.env.CLOUDINARY_API_KEY &&
+  process.env.CLOUDINARY_API_SECRET
+);
+
+if (isCloudinaryActive) {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+}
 
 router.use(authenticateToken as any);
 
@@ -50,8 +66,24 @@ router.post('/upload', upload.single('file'), async (req: AuthRequest, res: Resp
       return;
     }
 
-    const fileUrl = `/uploads/${req.file.filename}`;
+    let fileUrl = `/uploads/${req.file.filename}`;
     const fileType = path.extname(req.file.originalname).substring(1).toLowerCase();
+
+    if (isCloudinaryActive) {
+      try {
+        const result = await cloudinary.uploader.upload(req.file.path, {
+          folder: 'life_admin_documents',
+          resource_type: 'auto',
+        });
+        fileUrl = result.secure_url;
+        // Delete local temporary file
+        if (fs.existsSync(req.file.path)) {
+          fs.unlinkSync(req.file.path);
+        }
+      } catch (err) {
+        console.error('Cloudinary upload failed, falling back to local storage:', err);
+      }
+    }
 
     const doc = await prisma.document.create({
       data: {
@@ -83,11 +115,23 @@ router.delete('/:id', async (req: AuthRequest, res: Response): Promise<void> => 
       return;
     }
 
-    // Delete local file
-    const filename = path.basename(doc.fileUrl);
-    const filePath = path.join(uploadDir, filename);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    // Delete file
+    if (doc.fileUrl.includes('cloudinary.com')) {
+      try {
+        const parts = doc.fileUrl.split('/');
+        const filenameWithExtension = parts[parts.length - 1];
+        const filename = filenameWithExtension.split('.')[0];
+        const publicId = `life_admin_documents/${filename}`;
+        await cloudinary.uploader.destroy(publicId);
+      } catch (err) {
+        console.error('Failed to delete file from Cloudinary:', err);
+      }
+    } else {
+      const filename = path.basename(doc.fileUrl);
+      const filePath = path.join(uploadDir, filename);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
     }
 
     await prisma.document.delete({ where: { id } });
