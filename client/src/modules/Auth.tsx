@@ -44,7 +44,12 @@ export const Auth: React.FC = () => {
         setPassword('');
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Authentication failed. Please try again.');
+      console.error('Authentication Error:', err);
+      if (!err.response) {
+        setError('Connection failed. Please check if the backend API service is online.');
+      } else {
+        setError(err.response.data?.error || 'Authentication failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

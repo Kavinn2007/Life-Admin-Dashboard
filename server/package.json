@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "ts-node src/index.ts",
     "start": "node dist/index.js",
-    "build": "tsc",
+    "build": "prisma generate && prisma db push && tsc",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push"
   },

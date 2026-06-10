@@ -24,7 +24,25 @@ const allowedOrigins = [
 ].filter(Boolean) as string[];
 
 app.use(cors({
-  origin: allowedOrigins.length > 0 ? allowedOrigins : '*',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, postman)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin matches allowed list or ends with vercel.app
+    const isAllowed = allowedOrigins.some(allowed => allowed === origin) || origin.endsWith('.vercel.app');
+    
+    if (isAllowed || process.env.NODE_ENV !== 'production') {
+      callback(null, true);
+    } else {
+      // In production, if FRONTEND_URL is not set, allow all to avoid breaking the app
+      const hasFrontendUrl = allowedOrigins.some(o => !o.includes('localhost'));
+      if (!hasFrontendUrl) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    }
+  },
   credentials: true
 }));
 
