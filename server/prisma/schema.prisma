@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id            String             @id @default(uuid())
+  email         String             @unique
+  password      String
+  name          String
+  role          String             @default("USER")
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  
+  bills         Bill[]
+  insurance     Insurance[]
+  documents     Document[]
+  subscriptions Subscription[]
+  reminders     Reminder[]
+  assets        Asset[]
+  goals         Goal[]
+  notifications Notification[]
+  contacts      EmergencyContact[]
+}
+
+model Bill {
+  id            String    @id @default(uuid())
+  name          String
+  category      String
+  provider      String
+  amount        Float
+  dueDate       DateTime
+  status        String    @default("PENDING") // PAID, PENDING, OVERDUE
+  paymentMethod String?
+  notes         String?
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  createdAt     DateTime  @default(now())
+}
+
+model Insurance {
+  id              String    @id @default(uuid())
+  policyName      String
+  policyNumber    String
+  provider        String
+  insuranceType   String
+  coverageAmount  Float
+  premiumAmount   Float
+  startDate       DateTime
+  endDate         DateTime
+  renewalDate     DateTime
+  nomineeDetails  String?
+  notes           String?
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+}
+
+model Document {
+  id            String    @id @default(uuid())
+  name          String
+  category      String
+  fileUrl       String
+  fileType      String
+  expiryDate    DateTime?
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  createdAt     DateTime  @default(now())
+}
+
+model Subscription {
+  id            String    @id @default(uuid())
+  serviceName   String
+  category      String
+  provider      String?
+  cost          Float
+  billingCycle  String    // Monthly, Yearly
+  startDate     DateTime?
+  renewalDate   DateTime
+  paymentMethod String?
+  notes         String?
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+}
+
+model Reminder {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  date        DateTime
+  type        String    // Bill, Birthday, Renewal, etc.
+  priority    String    @default("MEDIUM") // HIGH, MEDIUM, LOW
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+}
+
+model Asset {
+  id            String    @id @default(uuid())
+  name          String
+  category      String
+  purchaseValue Float
+  currentValue  Float
+  purchaseDate  DateTime
+  ownership     String?
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+}
+
+model Goal {
+  id            String    @id @default(uuid())
+  title         String
+  category      String
+  targetAmount  Float
+  currentAmount Float     @default(0)
+  deadline      DateTime?
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id        String    @id @default(uuid())
+  type      String
+  message   String
+  isRead    Boolean   @default(false)
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  createdAt DateTime  @default(now())
+}
+
+model EmergencyContact {
+  id            String    @id @default(uuid())
+  name          String
+  relationship  String
+  phoneNumber   String
+  email         String?
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+}
