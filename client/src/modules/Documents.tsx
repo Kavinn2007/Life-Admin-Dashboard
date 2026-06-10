@@ -112,7 +112,8 @@ const Documents: React.FC = () => {
   const getFileUrl = (fileUrl: string) => {
     const apiBase = import.meta.env.VITE_API_URL || '';
     if (apiBase) {
-      return `${apiBase.replace(/\/$/, '')}${fileUrl}`;
+      const serverBase = apiBase.replace(/\/api\/?$/, '');
+      return `${serverBase.replace(/\/$/, '')}${fileUrl}`;
     }
     if (window.location.hostname === 'localhost') {
       return `http://localhost:5000${fileUrl}`;
