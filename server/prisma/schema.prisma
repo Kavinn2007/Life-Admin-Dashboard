@@ -92,6 +92,7 @@ model Reminder {
   date        DateTime
   type        String    // Bill, Birthday, Renewal, etc.
   priority    String    @default("MEDIUM") // HIGH, MEDIUM, LOW
+  recurrence  String    @default("NONE")   // NONE, DAILY, WEEKLY, MONTHLY, YEARLY
   userId      String
   user        User      @relation(fields: [userId], references: [id])
 }

@@ -6,11 +6,12 @@ import api from '../utils/api';
 import { useAuthStore } from '../store/authStore';
 
 export const Auth: React.FC = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const [mode, setMode] = useState<'login' | 'register' | 'forgot'>('login');
   const [email, setEmail] = useState('admin@lifeadmin.ai');
   const [password, setPassword] = useState('admin123');
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   
   const login = useAuthStore((state) => state.login);
@@ -19,14 +20,15 @@ export const Auth: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setSuccess(null);
     setLoading(true);
 
     try {
-      if (isLogin) {
+      if (mode === 'login') {
         const response = await api.post('/auth/login', { email, password });
         login(response.data.user, response.data.token);
         navigate('/');
-      } else {
+      } else if (mode === 'register') {
         if (!name) {
           setError('Name is required');
           setLoading(false);
@@ -35,6 +37,11 @@ export const Auth: React.FC = () => {
         const response = await api.post('/auth/register', { name, email, password });
         login(response.data.user, response.data.token);
         navigate('/');
+      } else if (mode === 'forgot') {
+        const response = await api.post('/auth/reset-password', { email, newPassword: password });
+        setSuccess(response.data.message || 'Password reset successful!');
+        setMode('login');
+        setPassword('');
       }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Authentication failed. Please try again.');
@@ -74,7 +81,7 @@ export const Auth: React.FC = () => {
         </div>
       </div>
 
-      {/* Right side: Login Form */}
+      {/* Right side: Form */}
       <div className="flex-1 flex items-center justify-center p-8 bg-white lg:bg-slate-50">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -83,12 +90,14 @@ export const Auth: React.FC = () => {
         >
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-slate-800 mb-2">
-              {isLogin ? 'Welcome Back!' : 'Create Account'}
+              {mode === 'login' ? 'Welcome Back!' : mode === 'register' ? 'Create Account' : 'Reset Password'}
             </h2>
             <p className="text-slate-500 text-sm">
-              {isLogin 
+              {mode === 'login' 
                 ? 'Please enter your credentials to access your dashboard'
-                : 'Sign up to start organizing your personal records'
+                : mode === 'register'
+                  ? 'Sign up to start organizing your personal records'
+                  : 'Enter your email and a new password to reset it'
               }
             </p>
           </div>
@@ -100,8 +109,15 @@ export const Auth: React.FC = () => {
             </div>
           )}
 
+          {success && (
+            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl text-green-600 text-xs flex items-center gap-2 font-medium">
+              <CheckCircle size={16} className="shrink-0 text-green-500" />
+              <span>{success}</span>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
-            {!isLogin && (
+            {mode === 'register' && (
               <div className="space-y-1">
                 <label className="text-xs font-bold text-slate-600 ml-1 uppercase tracking-wider">Full Name</label>
                 <div className="relative">
@@ -110,9 +126,9 @@ export const Auth: React.FC = () => {
                     type="text" 
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="John Doe" 
+                    placeholder="Full Name" 
                     className="input-field pl-10 h-12" 
-                    required={!isLogin}
+                    required={mode === 'register'}
                   />
                 </div>
               </div>
@@ -134,7 +150,9 @@ export const Auth: React.FC = () => {
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600 ml-1 uppercase tracking-wider">Password</label>
+              <label className="text-xs font-bold text-slate-600 ml-1 uppercase tracking-wider">
+                {mode === 'forgot' ? 'New Password' : 'Password'}
+              </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input 
@@ -148,13 +166,24 @@ export const Auth: React.FC = () => {
               </div>
             </div>
 
-            {isLogin && (
+            {mode === 'login' && (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <input type="checkbox" id="remember" className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary" />
                   <label htmlFor="remember" className="text-xs font-medium text-slate-500">Remember Me</label>
                 </div>
-                <button type="button" className="text-xs font-bold text-primary hover:underline uppercase tracking-tight">Forgot Password?</button>
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    setError(null);
+                    setSuccess(null);
+                    setMode('forgot');
+                    setPassword('');
+                  }}
+                  className="text-xs font-bold text-primary hover:underline uppercase tracking-tight cursor-pointer"
+                >
+                  Forgot Password?
+                </button>
               </div>
             )}
 
@@ -165,7 +194,7 @@ export const Auth: React.FC = () => {
             >
               {loading 
                 ? 'Processing...' 
-                : isLogin ? 'Login' : 'Create Account'
+                : mode === 'login' ? 'Login' : mode === 'register' ? 'Create Account' : 'Reset Password'
               }
               {!loading && <ArrowRight size={18} />}
             </button>
@@ -173,16 +202,46 @@ export const Auth: React.FC = () => {
 
           <div className="mt-8 text-center pt-8 border-t border-slate-50">
             <p className="text-sm text-slate-500">
-              {isLogin ? "Don't have an account?" : "Already have an account?"} {' '}
-              <button 
-                onClick={() => {
-                  setError(null);
-                  setIsLogin(!isLogin);
-                }}
-                className="font-bold text-primary hover:underline uppercase tracking-tighter cursor-pointer"
-              >
-                {isLogin ? 'Sign Up' : 'Log In'}
-              </button>
+              {mode === 'login' ? (
+                <>
+                  Don't have an account?{' '}
+                  <button 
+                    onClick={() => {
+                      setError(null);
+                      setSuccess(null);
+                      setMode('register');
+                    }}
+                    className="font-bold text-primary hover:underline uppercase tracking-tighter cursor-pointer"
+                  >
+                    Sign Up
+                  </button>
+                </>
+              ) : mode === 'register' ? (
+                <>
+                  Already have an account?{' '}
+                  <button 
+                    onClick={() => {
+                      setError(null);
+                      setSuccess(null);
+                      setMode('login');
+                    }}
+                    className="font-bold text-primary hover:underline uppercase tracking-tighter cursor-pointer"
+                  >
+                    Log In
+                  </button>
+                </>
+              ) : (
+                <button 
+                  onClick={() => {
+                    setError(null);
+                    setSuccess(null);
+                    setMode('login');
+                  }}
+                  className="font-bold text-primary hover:underline uppercase tracking-tighter cursor-pointer"
+                >
+                  Back to Login
+                </button>
+              )}
             </p>
           </div>
         </motion.div>

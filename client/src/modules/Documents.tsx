@@ -109,13 +109,24 @@ const Documents: React.FC = () => {
     }
   };
 
+  const getFileUrl = (fileUrl: string) => {
+    const apiBase = import.meta.env.VITE_API_URL || '';
+    if (apiBase) {
+      return `${apiBase.replace(/\/$/, '')}${fileUrl}`;
+    }
+    if (window.location.hostname === 'localhost') {
+      return `http://localhost:5000${fileUrl}`;
+    }
+    return `${window.location.origin}${fileUrl}`;
+  };
+
   const handlePreview = (doc: DocumentFile) => {
-    window.open(`http://localhost:5000${doc.fileUrl}`, '_blank');
+    window.open(getFileUrl(doc.fileUrl), '_blank');
   };
 
   const handleDownload = (doc: DocumentFile) => {
     const link = document.createElement('a');
-    link.href = `http://localhost:5000${doc.fileUrl}`;
+    link.href = getFileUrl(doc.fileUrl);
     link.setAttribute('download', doc.name);
     document.body.appendChild(link);
     link.click();

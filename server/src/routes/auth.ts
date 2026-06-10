@@ -105,4 +105,32 @@ router.put('/profile', authenticateToken as any, async (req: AuthRequest, res: R
   }
 });
 
+// Reset password
+router.post('/reset-password', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email, newPassword } = req.body;
+    if (!email || !newPassword) {
+      res.status(400).json({ error: 'Email and new password are required' });
+      return;
+    }
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      res.status(400).json({ error: 'Email address not found' });
+      return;
+    }
+
+    const hashedPassword = hashPassword(newPassword);
+    await prisma.user.update({
+      where: { email },
+      data: { password: hashedPassword },
+    });
+
+    res.json({ message: 'Password reset successful. Please login with your new password.' });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;
+

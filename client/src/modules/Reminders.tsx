@@ -9,6 +9,7 @@ interface Reminder {
   date: string;
   type: string;
   priority: string;
+  recurrence: string;
 }
 
 const Reminders: React.FC = () => {
@@ -26,6 +27,7 @@ const Reminders: React.FC = () => {
   const [remTime, setRemTime] = useState('');
   const [type, setType] = useState('Renewal');
   const [priority, setPriority] = useState('MEDIUM');
+  const [recurrence, setRecurrence] = useState('NONE');
 
   const fetchReminders = async () => {
     try {
@@ -81,6 +83,7 @@ const Reminders: React.FC = () => {
     setRemTime('');
     setType('Renewal');
     setPriority('MEDIUM');
+    setRecurrence('NONE');
     setShowModal(true);
   };
 
@@ -93,6 +96,7 @@ const Reminders: React.FC = () => {
       date: new Date(dateStr),
       type,
       priority,
+      recurrence,
     };
 
     try {
@@ -237,6 +241,11 @@ const Reminders: React.FC = () => {
                         </h4>
                         <p className="text-[10px] text-slate-400 font-semibold mt-1">
                           {new Date(rem.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          {rem.recurrence && rem.recurrence !== 'NONE' && (
+                            <span className="ml-2 inline-block text-[8px] font-black uppercase tracking-wider px-1 bg-slate-100 text-slate-600 border border-slate-200 rounded">
+                              🔄 {rem.recurrence}
+                            </span>
+                          )}
                         </p>
                         {rem.description && (
                           <p className="text-xs text-slate-500 font-medium mt-0.5">{rem.description}</p>
@@ -346,6 +355,21 @@ const Reminders: React.FC = () => {
                     <option value="LOW">Low</option>
                   </select>
                 </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Recurrence</label>
+                <select 
+                  value={recurrence} 
+                  onChange={(e) => setRecurrence(e.target.value)} 
+                  className="input-field bg-white"
+                >
+                  <option value="NONE">No Recurrence (One-time)</option>
+                  <option value="DAILY">Daily</option>
+                  <option value="WEEKLY">Weekly</option>
+                  <option value="MONTHLY">Monthly</option>
+                  <option value="YEARLY">Yearly</option>
+                </select>
               </div>
 
               <div className="pt-4 border-t border-slate-100 flex gap-4 justify-end">
