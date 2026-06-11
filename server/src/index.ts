@@ -14,6 +14,15 @@ import analyticsRoutes from './routes/analytics';
 
 dotenv.config();
 
+import { execSync } from 'child_process';
+try {
+  console.log('Production Startup: Running prisma db push...');
+  execSync('npx prisma db push --accept-data-loss', { stdio: 'inherit' });
+  console.log('Production Startup: Database schema push completed.');
+} catch (err: any) {
+  console.error('Production Startup: Database schema push failed:', err.message || err);
+}
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
