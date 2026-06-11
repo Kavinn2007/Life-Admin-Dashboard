@@ -14,13 +14,15 @@ import analyticsRoutes from './routes/analytics';
 
 dotenv.config();
 
+let startupMigrationError: string | null = null;
 import { execSync } from 'child_process';
 try {
   console.log('Production Startup: Running prisma db push...');
   execSync('npx prisma db push --accept-data-loss', { stdio: 'inherit' });
   console.log('Production Startup: Database schema push completed.');
 } catch (err: any) {
-  console.error('Production Startup: Database schema push failed:', err.message || err);
+  startupMigrationError = err.message || String(err);
+  console.error('Production Startup: Database schema push failed:', startupMigrationError);
 }
 
 const app = express();
@@ -61,9 +63,31 @@ app.use(express.json());
 const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, '../uploads');
 app.use('/uploads', express.static(uploadDir));
 
+import prisma from './utils/db';
+
 // Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Life Admin API is running' });
+app.get('/api/health', async (req, res) => {
+  let dbStatus = 'unknown';
+  let dbError = null;
+  try {
+    await prisma.user.count();
+    dbStatus = 'connected';
+  } catch (err: any) {
+    dbStatus = 'error';
+    dbError = err.message || String(err);
+  }
+
+  res.json({
+    status: 'ok',
+    message: 'Life Admin API is running',
+    database: {
+      status: dbStatus,
+      error: dbError,
+      startupError: startupMigrationError,
+      envDatabaseUrl: process.env.DATABASE_URL ? 'configured' : 'missing',
+      envUploadDir: process.env.UPLOAD_DIR ? 'configured' : 'missing'
+    }
+  });
 });
 
 // Register routers
