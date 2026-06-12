@@ -131,22 +131,15 @@ const App: React.FC = () => {
 const AppContent = () => {
   const location = useLocation();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const token = useAuthStore((state) => state.token);
   const logout = useAuthStore((state) => state.logout);
 
   const isAuthPage = location.pathname === '/auth';
 
-  useEffect(() => {
-    if (isAuthenticated && !token) {
-      logout();
-    }
-  }, [isAuthenticated, token, logout]);
-
-  if ((!isAuthenticated || !token) && !isAuthPage) {
+  if (!isAuthenticated && !isAuthPage) {
     return <Navigate to="/auth" replace />;
   }
 
-  if (isAuthenticated && token && isAuthPage) {
+  if (isAuthenticated && isAuthPage) {
     return <Navigate to="/" replace />;
   }
 

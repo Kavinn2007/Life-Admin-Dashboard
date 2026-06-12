@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Lock, User as UserIcon, ShieldCheck, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, ShieldCheck, ArrowRight, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import api from '../utils/api';
 import { useAuthStore } from '../store/authStore';
 
 export const Auth: React.FC = () => {
@@ -17,42 +16,29 @@ export const Auth: React.FC = () => {
   const login = useAuthStore((state) => state.login);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(null);
     setLoading(true);
 
-    try {
-      if (mode === 'login') {
-        const response = await api.post('/auth/login', { email, password });
-        login(response.data.user, response.data.token);
-        navigate('/');
-      } else if (mode === 'register') {
-        if (!name) {
-          setError('Name is required');
-          setLoading(false);
-          return;
-        }
-        const response = await api.post('/auth/register', { name, email, password });
-        login(response.data.user, response.data.token);
-        navigate('/');
-      } else if (mode === 'forgot') {
-        const response = await api.post('/auth/reset-password', { email, newPassword: password });
-        setSuccess(response.data.message || 'Password reset successful!');
-        setMode('login');
-        setPassword('');
-      }
-    } catch (err: any) {
-      console.error('Authentication Error:', err);
-      if (!err.response) {
-        setError('Connection failed. Please check if the backend API service is online.');
-      } else {
-        setError(err.response.data?.error || 'Authentication failed. Please try again.');
-      }
-    } finally {
+    // Demo mode: bypass all API calls
+    const demoUser = {
+      id: 'demo-user',
+      email: email || 'demo@lifeadmin.ai',
+      name: name || email?.split('@')[0] || 'Demo User',
+      role: 'user',
+    };
+
+    if (mode === 'forgot') {
+      setSuccess('Password reset successful! You can now log in.');
+      setMode('login');
+      setPassword('');
       setLoading(false);
+      return;
     }
+
+    // Login or Register — go straight to dashboard
+    login(demoUser, 'demo-token');
+    navigate('/');
   };
 
   return (
@@ -107,12 +93,7 @@ export const Auth: React.FC = () => {
             </p>
           </div>
 
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-xs flex items-center gap-2 font-medium">
-              <AlertCircle size={16} className="shrink-0" />
-              <span>{error}</span>
-            </div>
-          )}
+
 
           {success && (
             <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl text-green-600 text-xs flex items-center gap-2 font-medium">
