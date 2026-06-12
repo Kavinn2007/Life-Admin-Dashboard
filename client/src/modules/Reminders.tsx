@@ -103,12 +103,12 @@ const Reminders: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-slate-800">Reminders</h2>
           <p className="text-xs text-slate-400 font-semibold mt-1 uppercase tracking-wider">Schedule alerts, chores, and events with desktop reminders.</p>
         </div>
-        <button onClick={handleOpenAdd} className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg font-semibold flex items-center gap-2 text-sm cursor-pointer transition-all">
+        <button onClick={handleOpenAdd} className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg font-semibold flex items-center justify-center gap-2 text-sm cursor-pointer transition-all w-full md:w-auto">
           <Plus size={18} /> Add Reminder
         </button>
       </div>
@@ -175,13 +175,13 @@ const Reminders: React.FC = () => {
                 <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Doctor Appointment" className="input-field" required /></div>
               <div className="space-y-1"><label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Description</label>
                 <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Details of the appointment..." className="input-field min-h-[80px]" /></div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1"><label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Date</label>
                   <input type="date" value={remDate} onChange={(e) => setRemDate(e.target.value)} className="input-field" required /></div>
                 <div className="space-y-1"><label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Time</label>
                   <input type="time" value={remTime} onChange={(e) => setRemTime(e.target.value)} className="input-field" required /></div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1"><label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Type</label>
                   <select value={type} onChange={(e) => setType(e.target.value)} className="input-field bg-white">
                     <option value="Renewal">Renewal</option><option value="Appointment">Appointment</option>

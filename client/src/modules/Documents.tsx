@@ -99,12 +99,12 @@ const Documents: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-slate-800">Documents</h2>
           <p className="text-xs text-slate-400 font-semibold mt-1 uppercase tracking-wider">Securely upload, preview, and categorize your files.</p>
         </div>
-        <button onClick={handleOpenUpload} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold flex items-center gap-2 text-sm cursor-pointer transition-all">
+        <button onClick={handleOpenUpload} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold flex items-center justify-center gap-2 text-sm cursor-pointer transition-all w-full md:w-auto">
           <Plus size={18} /> Upload Document
         </button>
       </div>
@@ -186,7 +186,7 @@ const Documents: React.FC = () => {
               </div>
               <div className="space-y-1"><label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Document Title</label>
                 <input type="text" value={uploadName} onChange={(e) => setUploadName(e.target.value)} placeholder="Aadhaar Card Copy" className="input-field" required /></div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1"><label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Category</label>
                   <select value={category} onChange={(e) => setCategory(e.target.value)} className="input-field bg-white">
                     <option value="ID Proof">ID Proof</option><option value="Financial">Financial</option>

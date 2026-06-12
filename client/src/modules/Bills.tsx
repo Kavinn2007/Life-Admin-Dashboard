@@ -87,12 +87,12 @@ const Bills: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-slate-800">Bills</h2>
           <p className="text-xs text-slate-400 font-semibold mt-1 uppercase tracking-wider">Manage, filter, and settle your accounts.</p>
         </div>
-        <button onClick={handleOpenAdd} className="btn-primary cursor-pointer">
+        <button onClick={handleOpenAdd} className="btn-primary cursor-pointer w-full md:w-auto">
           <Plus size={18} /> Add Bill
         </button>
       </div>
@@ -185,7 +185,7 @@ const Bills: React.FC = () => {
               <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600"><X size={20} /></button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Bill Name</label>
                   <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Electricity Bill" className="input-field" required />
@@ -195,7 +195,7 @@ const Bills: React.FC = () => {
                   <input type="text" value={provider} onChange={(e) => setProvider(e.target.value)} placeholder="TNEB" className="input-field" required />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Category</label>
                   <select value={category} onChange={(e) => setCategory(e.target.value)} className="input-field bg-white">
@@ -207,7 +207,7 @@ const Bills: React.FC = () => {
                   <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="2500" className="input-field" required />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Due Date</label>
                   <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="input-field" required />
@@ -221,7 +221,7 @@ const Bills: React.FC = () => {
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Payment Method</label>
                   <input type="text" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} placeholder="Credit Card" className="input-field" />

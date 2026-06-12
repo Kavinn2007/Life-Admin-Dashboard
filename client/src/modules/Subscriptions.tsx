@@ -119,12 +119,12 @@ const Subscriptions: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-slate-800">Subscriptions</h2>
           <p className="text-xs text-slate-400 font-semibold mt-1 uppercase tracking-wider">Track your recurring monthly and annual packages.</p>
         </div>
-        <button onClick={handleOpenAdd} className="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold flex items-center gap-2 text-sm cursor-pointer transition-all">
+        <button onClick={handleOpenAdd} className="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold flex items-center justify-center gap-2 text-sm cursor-pointer transition-all w-full md:w-auto">
           <Plus size={18} /> Add Subscription
         </button>
       </div>
@@ -162,8 +162,8 @@ const Subscriptions: React.FC = () => {
                 className={`text-sm font-bold pb-2 border-b-2 cursor-pointer transition-all ${activeTab === tab ? 'text-primary border-primary' : 'text-slate-400 border-transparent hover:text-slate-600'}`}>{tab}</button>
             ))}
           </div>
-          <div className="flex gap-4 items-center w-full md:w-auto">
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} className="bg-white border border-slate-200 rounded-lg py-1.5 px-3 text-xs font-semibold outline-none focus:ring-1 focus:ring-primary shadow-sm">
+          <div className="flex flex-col md:flex-row gap-4 items-center w-full md:w-auto">
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} className="w-full md:w-auto bg-white border border-slate-200 rounded-lg py-1.5 px-3 text-xs font-semibold outline-none focus:ring-1 focus:ring-primary shadow-sm">
               <option value="renewalDate">Sort by Renewal Date</option>
               <option value="cost">Sort by Cost</option>
               <option value="serviceName">Sort by Name</option>
@@ -229,13 +229,13 @@ const Subscriptions: React.FC = () => {
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               {errorMsg && <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-xs font-semibold">{errorMsg}</div>}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1"><label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Service Name</label>
                   <input type="text" value={serviceName} onChange={(e) => setServiceName(e.target.value)} placeholder="Spotify" className="input-field" required /></div>
                 <div className="space-y-1"><label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Provider</label>
                   <input type="text" value={provider} onChange={(e) => setProvider(e.target.value)} placeholder="Spotify India Pvt Ltd" className="input-field" /></div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1"><label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Category</label>
                   <select value={category} onChange={(e) => setCategory(e.target.value)} className="input-field bg-white">
                     {['Entertainment', 'Utilities', 'Software', 'Cloud Storage', 'Education', 'Others'].map(c => <option key={c} value={c}>{c}</option>)}
@@ -245,13 +245,13 @@ const Subscriptions: React.FC = () => {
                     <option value="Monthly">Monthly</option><option value="Yearly">Yearly</option><option value="Weekly">Weekly</option>
                   </select></div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1"><label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Cost (₹)</label>
                   <input type="number" value={cost} onChange={(e) => setCost(e.target.value)} placeholder="99" className="input-field" required /></div>
                 <div className="space-y-1"><label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Payment Method</label>
                   <input type="text" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} placeholder="Credit Card" className="input-field" /></div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1"><label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Start Date</label>
                   <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="input-field" /></div>
                 <div className="space-y-1"><label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Renewal Date</label>

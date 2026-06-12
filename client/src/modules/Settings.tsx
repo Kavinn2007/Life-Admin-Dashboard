@@ -82,7 +82,7 @@ const Settings: React.FC = () => {
         ))}
       </div>
 
-      <div className="premium-card bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-900/30 flex items-center justify-between p-8 mt-12">
+      <div className="premium-card bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-900/30 flex flex-col md:flex-row items-start md:items-center justify-between p-6 md:p-8 mt-12 gap-4">
         <div>
           <h4 className="text-accent-red font-bold italic uppercase tracking-widest text-sm mb-1">Danger Zone</h4>
           <p className="text-xs text-red-500/70 font-medium italic">Clear all demo data and reset the application.</p>
@@ -94,7 +94,7 @@ const Settings: React.FC = () => {
               window.location.reload();
             }
           }}
-          className="px-6 py-2.5 bg-red-500 text-white rounded-xl font-bold italic uppercase tracking-widest text-[10px] shadow-lg shadow-red-500/20 hover:scale-105 transition-transform"
+          className="px-6 py-2.5 bg-red-500 text-white rounded-xl font-bold italic uppercase tracking-widest text-[10px] shadow-lg shadow-red-500/20 hover:scale-105 transition-transform w-full md:w-auto text-center cursor-pointer"
         >
           Clear All Data
         </button>

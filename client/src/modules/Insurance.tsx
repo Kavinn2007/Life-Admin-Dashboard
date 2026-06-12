@@ -99,12 +99,12 @@ const Insurance: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-slate-800">Insurance</h2>
           <p className="text-xs text-slate-400 font-semibold mt-1 uppercase tracking-wider">Track your active coverage, premiums, and renewals.</p>
         </div>
-        <button onClick={handleOpenAdd} className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-semibold flex items-center gap-2 text-sm cursor-pointer transition-all">
+        <button onClick={handleOpenAdd} className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-semibold flex items-center justify-center gap-2 text-sm cursor-pointer transition-all w-full md:w-auto">
           <Plus size={18} /> Add Policy
         </button>
       </div>
@@ -174,13 +174,13 @@ const Insurance: React.FC = () => {
               <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600"><X size={20} /></button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1"><label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Policy Name</label>
                   <input type="text" value={policyName} onChange={(e) => setPolicyName(e.target.value)} placeholder="Health Insurance" className="input-field" required /></div>
                 <div className="space-y-1"><label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Policy Number</label>
                   <input type="text" value={policyNumber} onChange={(e) => setPolicyNumber(e.target.value)} placeholder="SHI123456" className="input-field" required /></div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1"><label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Provider</label>
                   <input type="text" value={provider} onChange={(e) => setProvider(e.target.value)} placeholder="Star Health" className="input-field" required /></div>
                 <div className="space-y-1"><label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Policy Type</label>
@@ -188,13 +188,13 @@ const Insurance: React.FC = () => {
                     {['Health', 'Life', 'Vehicle', 'Home', 'Others'].map(t => <option key={t} value={t}>{t}</option>)}
                   </select></div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1"><label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Coverage Amount (₹)</label>
                   <input type="number" value={coverageAmount} onChange={(e) => setCoverageAmount(e.target.value)} placeholder="500000" className="input-field" required /></div>
                 <div className="space-y-1"><label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Premium Amount (₹)</label>
                   <input type="number" value={premiumAmount} onChange={(e) => setPremiumAmount(e.target.value)} placeholder="15000" className="input-field" required /></div>
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div className="space-y-1"><label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Start Date</label>
                   <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="input-field" required /></div>
                 <div className="space-y-1"><label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">End Date</label>
@@ -202,7 +202,7 @@ const Insurance: React.FC = () => {
                 <div className="space-y-1"><label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Renewal Date</label>
                   <input type="date" value={renewalDate} onChange={(e) => setRenewalDate(e.target.value)} className="input-field" required /></div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1"><label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Nominee Details</label>
                   <input type="text" value={nomineeDetails} onChange={(e) => setNomineeDetails(e.target.value)} placeholder="Spouse Name" className="input-field" /></div>
                 <div className="space-y-1"><label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Notes</label>

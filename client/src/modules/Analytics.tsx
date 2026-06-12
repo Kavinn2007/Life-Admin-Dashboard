@@ -104,11 +104,11 @@ const Analytics: React.FC = () => {
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <h2 className="text-xl font-bold text-slate-800">Reports & Summary</h2>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col md:flex-row md:items-center gap-3">
           <span className="text-xs font-bold text-slate-400 uppercase tracking-widest italic">Viewing data for:</span>
-          <select className="bg-white border border-slate-200 rounded-lg py-2 px-3 text-xs font-bold uppercase outline-none focus:ring-1 focus:ring-primary shadow-sm">
+          <select className="bg-white border border-slate-200 rounded-lg py-2 px-3 text-xs font-bold uppercase outline-none focus:ring-1 focus:ring-primary shadow-sm w-full md:w-auto">
             <option>This Month</option><option>Last Month</option><option>Last 3 Months</option>
           </select>
         </div>
