@@ -160,7 +160,6 @@ export const Auth: React.FC = () => {
                 <button 
                   type="button" 
                   onClick={() => {
-                    setError(null);
                     setSuccess(null);
                     setMode('forgot');
                     setPassword('');
@@ -192,7 +191,6 @@ export const Auth: React.FC = () => {
                   Don't have an account?{' '}
                   <button 
                     onClick={() => {
-                      setError(null);
                       setSuccess(null);
                       setMode('register');
                     }}
@@ -206,7 +204,6 @@ export const Auth: React.FC = () => {
                   Already have an account?{' '}
                   <button 
                     onClick={() => {
-                      setError(null);
                       setSuccess(null);
                       setMode('login');
                     }}
@@ -218,7 +215,6 @@ export const Auth: React.FC = () => {
               ) : (
                 <button 
                   onClick={() => {
-                    setError(null);
                     setSuccess(null);
                     setMode('login');
                   }}

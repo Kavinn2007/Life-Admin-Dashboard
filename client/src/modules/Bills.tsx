@@ -71,7 +71,7 @@ const Bills: React.FC = () => {
   };
 
   const handleMarkAsPaid = (bill: Bill) => {
-    updateItem('bills', bill.id, { status: 'PAID' });
+    updateItem<any>('bills', bill.id, { ...bill, status: 'PAID' });
     load();
   };
 

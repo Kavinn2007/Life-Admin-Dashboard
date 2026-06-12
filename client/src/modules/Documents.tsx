@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Download, FileText, Trash2, Eye, X, Search } from 'lucide-react';
-import { getAll, deleteItem } from '../utils/demoStorage';
+
 
 interface DocumentFile {
   id: string;
