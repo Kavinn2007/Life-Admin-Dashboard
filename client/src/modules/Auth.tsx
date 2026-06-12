@@ -9,7 +9,6 @@ export const Auth: React.FC = () => {
   const [email, setEmail] = useState('admin@lifeadmin.ai');
   const [password, setPassword] = useState('admin123');
   const [name, setName] = useState('');
-  const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   
