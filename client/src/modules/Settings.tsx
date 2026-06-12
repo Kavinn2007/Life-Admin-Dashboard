@@ -1,48 +1,23 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Settings as SettingsIcon, User, Shield, Bell, Moon, Languages, CreditCard, ChevronRight, Loader2 } from 'lucide-react';
+import { Settings as SettingsIcon, User, Shield, Bell, Moon, Languages, CreditCard, ChevronRight } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
-import api from '../utils/api';
 
 const Settings: React.FC = () => {
   const user = useAuthStore((state) => state.user);
   const updateUser = useAuthStore((state) => state.updateUser);
 
   const [name, setName] = useState(user?.name || '');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
 
-  const handleSaveProfile = async (e: React.FormEvent) => {
+  const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMsg(null);
-    setSuccessMsg(null);
-
-    if (password && password !== confirmPassword) {
-      setErrorMsg('Passwords do not match');
-      return;
+    // Demo mode: update name in localStorage only
+    if (user) {
+      updateUser({ ...user, name });
     }
-
-    try {
-      setSaving(true);
-      const response = await api.put('/auth/profile', {
-        name,
-        password: password || undefined,
-      });
-      
-      updateUser(response.data.user);
-      setSuccessMsg('Profile updated successfully!');
-      setPassword('');
-      setConfirmPassword('');
-    } catch (err: any) {
-      console.error('Failed to update profile:', err);
-      setErrorMsg(err.response?.data?.error || 'Failed to update profile details.');
-    } finally {
-      setSaving(false);
-    }
+    setSuccessMsg('Profile updated successfully!');
+    setTimeout(() => setSuccessMsg(null), 3000);
   };
 
   const sections = [
@@ -54,11 +29,7 @@ const Settings: React.FC = () => {
   ];
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="max-w-4xl mx-auto space-y-8"
-    >
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl mx-auto space-y-8">
       <div className="flex items-end justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight italic flex items-center gap-3">
@@ -68,86 +39,28 @@ const Settings: React.FC = () => {
         </div>
       </div>
 
-      {/* Profile Form */}
       <div className="dashboard-card">
         <div className="p-1 border-b border-slate-100 flex items-center justify-between mb-6">
-          <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2">
-            <User className="w-4 h-4 text-primary" /> Profile Settings
-          </h3>
+          <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2"><User className="w-4 h-4 text-primary" /> Profile Settings</h3>
         </div>
-        
+
         {successMsg && (
-          <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-600 rounded-lg text-xs font-semibold">
-            {successMsg}
-          </div>
-        )}
-        {errorMsg && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-xs font-semibold">
-            {errorMsg}
-          </div>
+          <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-600 rounded-lg text-xs font-semibold">{successMsg}</div>
         )}
 
         <form onSubmit={handleSaveProfile} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Full Name</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Your Name"
-                className="input-field"
-                required
-              />
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your Name" className="input-field" required />
             </div>
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Email Address</label>
-              <input
-                type="email"
-                value={user?.email || ''}
-                className="input-field bg-slate-50 cursor-not-allowed opacity-70"
-                disabled
-              />
+              <input type="email" value={user?.email || ''} className="input-field bg-slate-50 cursor-not-allowed opacity-70" disabled />
             </div>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">New Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Leave blank to keep current"
-                className="input-field"
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Confirm New Password</label>
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm new password"
-                className="input-field"
-              />
-            </div>
-          </div>
-
           <div className="flex justify-end pt-2">
-            <button
-              type="submit"
-              disabled={saving}
-              className="btn-primary cursor-pointer disabled:opacity-50"
-            >
-              {saving ? (
-                <span className="flex items-center gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin" /> Saving...
-                </span>
-              ) : (
-                'Save Changes'
-              )}
-            </button>
+            <button type="submit" className="btn-primary cursor-pointer">Save Changes</button>
           </div>
         </form>
       </div>
@@ -172,10 +85,18 @@ const Settings: React.FC = () => {
       <div className="premium-card bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-900/30 flex items-center justify-between p-8 mt-12">
         <div>
           <h4 className="text-accent-red font-bold italic uppercase tracking-widest text-sm mb-1">Danger Zone</h4>
-          <p className="text-xs text-red-500/70 font-medium italic">Permanently delete your account and all associated data.</p>
+          <p className="text-xs text-red-500/70 font-medium italic">Clear all demo data and reset the application.</p>
         </div>
-        <button className="px-6 py-2.5 bg-accent-red text-white rounded-xl font-bold italic uppercase tracking-widest text-[10px] shadow-lg shadow-red-500/20 hover:scale-105 transition-transform">
-          Delete Account
+        <button
+          onClick={() => {
+            if (window.confirm('Clear all demo data? This cannot be undone.')) {
+              ['bills', 'insurance', 'subscriptions', 'reminders', 'documents'].forEach(k => localStorage.removeItem(k));
+              window.location.reload();
+            }
+          }}
+          className="px-6 py-2.5 bg-red-500 text-white rounded-xl font-bold italic uppercase tracking-widest text-[10px] shadow-lg shadow-red-500/20 hover:scale-105 transition-transform"
+        >
+          Clear All Data
         </button>
       </div>
     </motion.div>

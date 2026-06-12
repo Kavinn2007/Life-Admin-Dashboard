@@ -12,50 +12,74 @@ import Reminders from './modules/Reminders';
 import Analytics from './modules/Analytics';
 import Settings from './modules/Settings';
 import { Auth } from './modules/Auth';
-import { Wallet, ShieldCheck, RefreshCw, MoreVertical, Loader2 } from 'lucide-react';
-import api from './utils/api';
+import { Wallet, ShieldCheck, RefreshCw, MoreVertical } from 'lucide-react';
 import { useAuthStore } from './store/authStore';
+import { getAll } from './utils/demoStorage';
 
 const Dashboard = () => {
   const user = useAuthStore((state) => state.user);
   const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const response = await api.get('/analytics');
-        setData(response.data);
-      } catch (error) {
-        console.error('Failed to load dashboard data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDashboardData();
+    // Build dashboard data from localStorage — zero API calls
+    const bills = getAll<any>('bills');
+    const insurance = getAll<any>('insurance');
+    const subscriptions = getAll<any>('subscriptions');
+
+    const now = new Date();
+    const next7 = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const next30 = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+    const upcomingBills = bills.filter((b: any) => b.status === 'PENDING' && new Date(b.dueDate) <= next7);
+    const upcomingBillsSum = upcomingBills.reduce((s: number, b: any) => s + (b.amount || 0), 0);
+    const upcomingInsurance = insurance.filter((i: any) => { const rd = new Date(i.renewalDate); return rd >= now && rd <= next30; });
+    const activeSubs = subscriptions.filter((s: any) => new Date(s.renewalDate) >= now);
+
+    const billsMonthly = bills.filter((b: any) => b.status !== 'PAID').reduce((s: number, b: any) => s + (b.amount || 0), 0);
+    const subsMonthly = activeSubs.reduce((sum: number, sub: any) => {
+      if (sub.billingCycle === 'Yearly') return sum + (sub.cost / 12);
+      if (sub.billingCycle === 'Weekly') return sum + (sub.cost * 52 / 12);
+      return sum + (sub.cost || 0);
+    }, 0);
+    const insuranceMonthly = insurance.reduce((s: number, i: any) => s + ((i.premiumAmount || 0) / 12), 0);
+    const totalMonthlySpent = Math.round(billsMonthly + subsMonthly + insuranceMonthly);
+
+    const dueDates = [
+      ...upcomingBills.slice(0, 3).map((b: any) => ({
+        name: b.name,
+        amount: `₹${b.amount?.toLocaleString()}`,
+        type: 'bill',
+        date: new Date(b.dueDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }),
+        status: 'DUE SOON',
+        color: 'text-blue-600',
+        daysLeft: Math.ceil((new Date(b.dueDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)),
+      })),
+      ...upcomingInsurance.slice(0, 2).map((i: any) => ({
+        name: i.policyName,
+        amount: `₹${i.premiumAmount?.toLocaleString()}`,
+        type: 'insurance',
+        date: new Date(i.renewalDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }),
+        status: 'RENEWING',
+        color: 'text-orange-600',
+        daysLeft: Math.ceil((new Date(i.renewalDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)),
+      })),
+    ];
+
+    setData({
+      summary: { totalMonthlySpent, upcomingBillsCount: upcomingBills.length, upcomingBillsSum, upcomingInsuranceCount: upcomingInsurance.length, activeSubscriptionsCount: activeSubs.length },
+      dueDates,
+    });
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <Loader2 className="w-8 h-8 text-primary animate-spin" />
-      </div>
-    );
-  }
-
   const kpis = [
-    { label: 'Projected Expenses', value: data?.summary?.totalMonthlySpent !== undefined ? `₹ ${data.summary.totalMonthlySpent.toLocaleString()}` : '₹ 0', subValue: '', info: 'Total Monthly Projected', icon: Wallet, color: 'text-blue-600' },
-    { label: 'Upcoming Bills', value: data?.summary?.upcomingBillsCount !== undefined ? data.summary.upcomingBillsCount.toString() : '0', subValue: data?.summary?.upcomingBillsSum !== undefined ? `₹ ${data.summary.upcomingBillsSum.toLocaleString()}` : '', info: 'Due in next 7 days', icon: Wallet, color: 'text-blue-600' },
-    { label: 'Insurance Renewals', value: data?.summary?.upcomingInsuranceCount !== undefined ? data.summary.upcomingInsuranceCount.toString() : '0', subValue: '', info: 'Due in next 30 days', icon: ShieldCheck, color: 'text-orange-600' },
-    { label: 'Active Subscriptions', value: data?.summary?.activeSubscriptionsCount !== undefined ? data.summary.activeSubscriptionsCount.toString() : '0', subValue: '', info: 'Active Tracker', icon: RefreshCw, color: 'text-green-600' },
+    { label: 'Projected Expenses', value: data ? `₹ ${data.summary.totalMonthlySpent.toLocaleString()}` : '₹ 0', subValue: '', info: 'Total Monthly Projected', icon: Wallet, color: 'text-blue-600' },
+    { label: 'Upcoming Bills', value: data ? data.summary.upcomingBillsCount.toString() : '0', subValue: data ? `₹ ${data.summary.upcomingBillsSum.toLocaleString()}` : '', info: 'Due in next 7 days', icon: Wallet, color: 'text-blue-600' },
+    { label: 'Insurance Renewals', value: data ? data.summary.upcomingInsuranceCount.toString() : '0', subValue: '', info: 'Due in next 30 days', icon: ShieldCheck, color: 'text-orange-600' },
+    { label: 'Active Subscriptions', value: data ? data.summary.activeSubscriptionsCount.toString() : '0', subValue: '', info: 'Active Tracker', icon: RefreshCw, color: 'text-green-600' },
   ];
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-6"
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-slate-800">Welcome Back, {user?.name || 'User'} 👋</h2>
@@ -91,7 +115,7 @@ const Dashboard = () => {
               <div key={i} className="p-5 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
                 <div className="flex items-center gap-4">
                   <div className={`w-10 h-10 rounded-lg flex items-center justify-center bg-slate-50 ${item.color}`}>
-                    {item.type === 'bill' ? <Wallet size={18} /> : item.type === 'insurance' ? <ShieldCheck size={18} /> : <RefreshCw size={18} />}
+                    {item.type === 'bill' ? <Wallet size={18} /> : <ShieldCheck size={18} />}
                   </div>
                   <div>
                     <h4 className="font-bold text-sm text-slate-800">{item.name}</h4>
@@ -102,17 +126,15 @@ const Dashboard = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-6">
-                  <span className={`text-[10px] font-black uppercase tracking-widest italic ${item.color}`}>
-                    {item.status}
-                  </span>
-                  <button className="text-slate-300 hover:text-slate-500">
-                    <MoreVertical size={18} />
-                  </button>
+                  <span className={`text-[10px] font-black uppercase tracking-widest italic ${item.color}`}>{item.status}</span>
+                  <button className="text-slate-300 hover:text-slate-500"><MoreVertical size={18} /></button>
                 </div>
               </div>
             ))
           ) : (
-            <div className="p-8 text-center text-slate-400 italic text-sm">No upcoming renewals or payments in the next 30 days.</div>
+            <div className="p-8 text-center text-slate-400 italic text-sm">
+              {data === null ? 'Loading...' : 'No upcoming renewals or payments in the next 30 days.'}
+            </div>
           )}
         </div>
       </div>
@@ -135,6 +157,7 @@ const AppContent = () => {
 
   const isAuthPage = location.pathname === '/auth';
 
+  // Simple localStorage-based guard — no JWT required
   if (!isAuthenticated && !isAuthPage) {
     return <Navigate to="/auth" replace />;
   }
@@ -156,6 +179,7 @@ const AppContent = () => {
           <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
               <Route path="/" element={<Dashboard />} />
+              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/bills" element={<Bills />} />
               <Route path="/insurance" element={<Insurance />} />
               <Route path="/documents" element={<Documents />} />
